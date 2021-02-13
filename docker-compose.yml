@@ -1,0 +1,52 @@
+version: "3.8"
+services: 
+  nginx:
+    container_name: nginx
+    image: nginx:stable
+    working_dir: /var/www
+    volumes:
+      - ./myapp:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d
+    ports: 
+      - "9090:80"
+    depends_on:
+      - php
+      - mariadb
+
+  php:
+    container_name: php8.0.2
+    image: php:8.0.2-fpm-buster
+    working_dir: /var/www/
+    depends_on: 
+      - mariadb
+    volumes: 
+      - ./myapp:/var/www/
+
+  mariadb:
+    container_name: mariadb10
+    image: mariadb:10.5.8
+    ports: 
+      - "9094:3306"
+    environment: 
+      - MYSQL_ROOT_PASSWORD=hipotenusa
+      - MYSQL_DATABASE=calculoDeTriangulo
+    volumes: 
+      - mariadb_data:/var/lib/mysql
+  
+  phpmyadmin:
+    container_name: phpmyadminV5
+    image: phpmyadmin:5.0.4-apache
+    restart: always
+    environment: 
+      - PMA_HOST=database
+      - PMA_PORT=3306
+      - PMA_USER=hipotenusa
+      - PMA_PASSWORD=hipotenusa
+      - UPLOAD_LIMIT=10M
+    ports:
+      - "9095:80"
+    depends_on: 
+      - mariadb
+
+volumes:
+  mariadb_data:
